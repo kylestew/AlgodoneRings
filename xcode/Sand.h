@@ -32,7 +32,7 @@ public:
     
     void drawParticles(vector<Particle> particles) {
         for(auto &particle : particles) {
-            blendOver(applyGrain(particle), particle.color);
+            drawPoint(particle.scalePosition(width, height), particle.color);
         }
     }
     
@@ -40,10 +40,10 @@ public:
         if (particles.size()<2)
             return;
         
-        for(int i=1; i<particles.size(); ++i) {
+        for(int i = 1; i < particles.size(); ++i) {
             Particle& p0 = particles[i-1];
             Particle& p1 = particles[i];
-            drawLine(applyGrain(p0), applyGrain(p1), p0.color, p1.color);
+            drawLine(p0.scalePosition(width, height), p1.scalePosition(width, height), p0.color, p1.color);
         }
     }
     
@@ -84,15 +84,41 @@ private:
         surface.setPixel(pos, c);
     }
     
-    void drawLine(vec2 p0, vec2 p1, ColorA c0, ColorA c1) {
-        // TODO: lerp colors
+    void drawPoint(vec2 point, ColorA color) {
+        // apply grain as perlin brownian noise
+        point += grain * perlin.dfBm(point.x + clock(), point.y + clock());
+        blendOver(point, color);
     }
     
-    vec2 applyGrain(Particle& p) {
-        // grain = random offset of pixel
-        vec2 pos = p.scalePosition(width, height);
-        pos += grain * perlin.dfBm(pos.x + clock(), pos.y + clock());
-        return pos;
+    void drawLine(vec2 p0, vec2 p1, ColorA c0, ColorA c1) {
+        float x0 = p0.x;
+        float y0 = p0.y;
+        float x1 = p1.x;
+        float y1 = p1.y;
+        
+        bool steep = false;
+        // if the line is steep, we transpose drawing
+        if (std::abs(x0-x1)<std::abs(y0-y1)) {
+            std::swap(x0, y0);
+            std::swap(x1, y1);
+            steep = true;
+        }
+        if (x0>x1) { // draw left-to-right always
+            std::swap(x0, x1);
+            std::swap(y0, y1);
+        }
+        
+        for (int x=x0; x<=x1; x += 2) {
+            float t = (x-x0)/(float)(x1-x0);
+            int y = y0*(1.-t) + y1*t;
+            ColorA c = lerp(c0, c1, t);
+            
+            if (steep) {
+                drawPoint(vec2(y, x), c);
+            } else {
+                drawPoint(vec2(x, y), c);
+            }
+        }
     }
     
 };

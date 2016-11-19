@@ -31,30 +31,34 @@ class ApproximateNaturalApp : public App {
 
 void ApproximateNaturalApp::setup() {
     setWindowSize(WIDTH, HEIGHT);
+    setFrameRate(10);
     
     sand = Sand(WIDTH, HEIGHT);
     sand.setBackground(ColorA(1, 1, 1, 1));
-    sand.setAlpha(1);
-//    sand.setGrain(0.5);
-    sand.setGrain(0);
+    sand.setAlpha(0.02);
+    sand.setGrain(0.1);
     
     // sample colors from image
     ImageColorSampler sampler("sample.jpg");
     
     // setup particle grid
-//    for (int col = 1; col < 11; ++col) {
-//        for (int row = 1; row < 11; ++row) {
-//            double x = lmap((double)col, 0.0, 11.0, 0.0, 1.0);
-//            double y = lmap((double)row, 0.0, 11.0, 0.0, 1.0);
-//            
+    for (int col = 1; col < 11; ++col) {
+        for (int row = 1; row < 11; ++row) {
+            double x = lmap((double)col, 0.0, 11.0, 0.0, 1.0);
+            double y = lmap((double)row, 0.0, 11.0, 0.0, 1.0);
+            
 //            particles.push_back(Particle(vec2(x, y), sampler.randomSample()));
-//        }
-//    }
+            particles.push_back(Particle(vec2(x, y), ColorA(0, 0, 0, 1)));
+        }
+    }
+    
+    
+    // TODO: walker line
     
     
     // define a line
-    particles.push_back(Particle(vec2(0.25, 0.25), ColorA(1,0,0,0)));
-    particles.push_back(Particle(vec2(0.75, 0.75), ColorA(1,0,0,0)));
+//    particles.push_back(Particle(vec2(0.25, 0.25), sampler.randomSample()));
+//    particles.push_back(Particle(vec2(0.75, 0.75), sampler.randomSample()));
 }
 
 void ApproximateNaturalApp::update() {
