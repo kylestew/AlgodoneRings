@@ -9,6 +9,8 @@
 #define Sand_h
 
 #include "cinder/Perlin.h"
+#include "cinder/Rand.h"
+
 using namespace ci;
 using namespace std;
 
@@ -27,28 +29,42 @@ public:
     void setGrain(float aGrain) {
         // grain is scaled up for surface
         // ex: 4.0 = a particle can randomly move up to 4% from its original position
-        grain = width * (aGrain/200.0);
+//        grain = width * (aGrain/200.0);
+        grain = aGrain;
     }
     
     void drawParticles(vector<Particle> particles) {
         for(auto &particle : particles) {
-            drawPoint(particle.scalePosition(width, height), particle.color);
+            drawPoint(particle.position, particle.color);
         }
     }
     
     void connectParticles(vector<Particle> particles) {
-        if (particles.size()<2)
-            return;
+//        if (particles.size()<2)
+//            return;
+//        
+//        for(int i = 1; i < particles.size(); ++i) {
+//            Particle& p0 = particles[i-1];
+//            Particle& p1 = particles[i];
+//            drawLine(p0.scalePosition(width, height), p1.scalePosition(width, height), p0.color, p1.color);
+//        }
+    }
+    
+    void stroke(int detail, Particle p0, Particle p1) {
+        vec2 del = p1.position - p0.position;
         
-        for(int i = 1; i < particles.size(); ++i) {
-            Particle& p0 = particles[i-1];
-            Particle& p1 = particles[i];
-            drawLine(p0.scalePosition(width, height), p1.scalePosition(width, height), p0.color, p1.color);
+        for(int i = 0; i < detail; i++) {
+//            float rnd = Rand::randFloat();
+//            drawPoint(vec2(p0.position.x + rnd*del.x, p0.position.y + rnd*del.y), p0.color);
+            
+            float rnd = (float)i/(float)detail;
+            drawPoint(vec2(p0.position.x + rnd*del.x, p0.position.y + rnd*del.y), p0.color);
         }
     }
     
-    void display() {
-        gl::draw(gl::Texture2d::create(surface));
+    void display(int scaleDown = 1) {
+        Rectf drawRect(0, 0, width/scaleDown, height/scaleDown);
+        gl::draw(gl::Texture2d::create(surface), drawRect);
     }
     
 private:
@@ -76,9 +92,9 @@ private:
         ColorA c = surface.getPixel(pos);
         
         float invA = 1.0 - alpha;
-        c.r = col.r + c.r*invA;
-        c.g = col.g + c.g*invA;
-        c.b = col.b + c.b*invA;
+        c.r += alpha * (col.r + c.r*invA);
+        c.g += alpha * (col.g + c.g*invA);
+        c.b += alpha * (col.b + c.b*invA);
         c.a = alpha + c.a*invA;
         
         surface.setPixel(pos, c);
@@ -86,15 +102,16 @@ private:
     
     void drawPoint(vec2 point, ColorA color) {
         // apply grain as perlin brownian noise
-        point += grain * perlin.dfBm(point.x + clock(), point.y + clock());
+        // TODO: where does grain need to be applied?
+//        point += grain * perlin.fBm(point.x*0.1f, point.y*0.1f, app::getElapsedSeconds() * 0.1f);
         blendOver(point, color);
     }
     
     void drawLine(vec2 p0, vec2 p1, ColorA c0, ColorA c1) {
-        float x0 = p0.x;
-        float y0 = p0.y;
-        float x1 = p1.x;
-        float y1 = p1.y;
+        double x0 = p0.x;
+        double y0 = p0.y;
+        double x1 = p1.x;
+        double y1 = p1.y;
         
         bool steep = false;
         // if the line is steep, we transpose drawing
@@ -109,7 +126,7 @@ private:
         }
         
         for (int x=x0; x<=x1; x += 2) {
-            float t = (x-x0)/(float)(x1-x0);
+            double t = (x-x0)/(double)(x1-x0);
             int y = y0*(1.-t) + y1*t;
             ColorA c = lerp(c0, c1, t);
             

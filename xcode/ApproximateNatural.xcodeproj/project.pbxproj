@@ -36,6 +36,7 @@
 		270635701DD81B5D006734F7 /* Walkers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Walkers.h; sourceTree = "<group>"; };
 		270635711DD81CDB006734F7 /* Particle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
 		2709E9BB1DD788E60034E2D2 /* Sand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sand.h; sourceTree = "<group>"; };
+		275372F51DEF7700008C0AA3 /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		27BDBC9B1DDD5F0500A873DF /* ImageColorSampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageColorSampler.h; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -85,6 +86,7 @@
 				270635701DD81B5D006734F7 /* Walkers.h */,
 				270635711DD81CDB006734F7 /* Particle.h */,
 				27BDBC9B1DDD5F0500A873DF /* ImageColorSampler.h */,
+				275372F51DEF7700008C0AA3 /* Utils.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";

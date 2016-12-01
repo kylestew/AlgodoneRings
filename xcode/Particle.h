@@ -1,7 +1,9 @@
 #ifndef Particle_h
 #define Particle_h
 
-/* Particles are in [0,1) space */
+using namespace ci;
+using namespace ci::app;
+
 class Particle {
 public:
     Particle(const vec2 &position, ColorA color)
@@ -11,14 +13,10 @@ public:
     vec2 velocity;
     ColorA color;
     
-    vec2 scalePosition(float width, float height) {
-        return vec2(position.x * width, position.y * height);
-    }
-    
     void update() {
         position += velocity;
     }
 private:
 };
 
-#endif /* Particle_h */
+#endif 
