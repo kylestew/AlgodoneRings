@@ -20,7 +20,7 @@ using namespace std;
 class Sand {
 public:
     Sand() {}
-    Sand(int width, int height) : background{ColorA(1,1,1,1)}, alpha{1.0}, grain{1.0} {
+    Sand(int width, int height) : background{ColorA(1,1,1,1)}, grain{1.0} {
         offscreenBuffer = cairo::SurfaceImage(width, height, false);
         offscreenContext = cairo::Context(offscreenBuffer);
         clear();
@@ -28,7 +28,6 @@ public:
     }
     
     void setBackground(ColorA col) { background = col; clear(); }
-    void setAlpha(double aAlpha) { alpha = aAlpha; }
     void setGrain(double aGrain) {
         // grain is scaled up for surface
         // ex: 4.0 = a particle can randomly move up to 4% from its original position
@@ -72,7 +71,6 @@ private:
     Perlin perlin;
 //    int width, height;
     ColorA background;
-    double alpha;
     double grain;
     
     void clear() {
