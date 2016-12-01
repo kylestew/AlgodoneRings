@@ -1,28 +1,25 @@
 #include "cinder/app/App.h"
-#include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
+#include "cinder/cairo/Cairo.h"
+#include "cinder/Utilities.h"
 
-#include "Utils.h"
 #include "Sand.h"
-//#include "Walkers.h"
+#include "Particle.h"
+#include "Utils.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-static const int WIDTH = 900;
-static const int HEIGHT = 900;
-
 class ApproximateNaturalApp : public App {
   public:
 	void setup() override;
+    void keyDown(KeyEvent event) override;
 	void update() override;
+	void renderScene();
 	void draw() override;
     
-    static const int WALKERS_COUNT = WIDTH*2;
-    static constexpr float NOISE_SCALE = 0.05;
-    static constexpr float NOISE_DETAIL = 0.005;
-    static constexpr float NOISE_SPEED = 0.2;
+    static const int WIDTH = 900;
+    static const int HEIGHT = 900;
     
     Sand sand; // drawing engine
     
@@ -30,29 +27,24 @@ class ApproximateNaturalApp : public App {
     vector<Particle> positions;
 };
 
-void prepareSettings(ApproximateNaturalApp::Settings *settings) {
-//    settings->setHighDensityDisplayEnabled(); // try removing this line
-}
-
 void ApproximateNaturalApp::setup() {
-    setWindowSize(WIDTH/getWindowContentScale(), HEIGHT/getWindowContentScale());
+    setWindowSize(WIDTH, HEIGHT);
     
     sand = Sand(WIDTH, HEIGHT);
-    sand.setBackground(ColorA(0, 0, 0, 1));
-    sand.setAlpha(0.05);
-    sand.setAlpha(1);
-//    sand.setGrain(2.0);
+    sand.setBackground(ColorA(1,1,1,1));
+//    sand.setAlpha(1.0);
+    //    sand.setGrain(2.0);
     
     // frame in drawing space
     Boundary boundary = getBoundary(WIDTH, HEIGHT, 0.14);
-    
+
     // decide how many grid rows and columns to place
     int side = min(boundary.innerWidth, boundary.innerHeight); // find smallest side
     sideCount = side/80.0;
-//    int totalCount = sideCount*sideCount;
+    //    int totalCount = sideCount*sideCount;
     
     // layout grid
-    createGrid(positions, ColorA(1, 1, 1, 1), sideCount, side, boundary.xMid, boundary.yMid);
+    createGrid(positions, ColorA(0, 0, 0, 1), sideCount, side, boundary.xMid, boundary.yMid);
     
     // pre-compute random weights and directions
     //  const weight = getRnd(num, 0, 1.0);
@@ -61,11 +53,38 @@ void ApproximateNaturalApp::setup() {
     //  const scale = 0.1;
 }
 
+void ApproximateNaturalApp::keyDown( KeyEvent event ) {
+//    if( event.getCode() == KeyEvent::KEY_f ) {
+//        setFullScreen( ! isFullScreen() );
+//    }
+//    else if( event.getChar() == 'x' ) {
+//        mFlowers.clear();
+//    }
+//    else if( event.getChar() == 's' ) {
+//        cairo::Context ctx( cairo::SurfaceSvg( getHomeDirectory() / "CairoBasicShot.svg", getWindowWidth(), getWindowHeight() ) );
+//        renderScene( ctx );
+//    }
+//    else if( event.getChar() == 'e' ) {
+//        cairo::Context ctx( cairo::SurfaceEps( getHomeDirectory() / "CairoBasicShot.eps", getWindowWidth(), getWindowHeight() ) );
+//        renderScene( ctx );
+//    }
+//    else if( event.getChar() == 'p' ) {
+//        cairo::Context ctx( cairo::SurfacePs( getHomeDirectory() / "CairoBasicShot.ps", getWindowWidth(), getWindowHeight() ) );
+//        renderScene( ctx );
+//    }
+//    else if( event.getChar() == 'd' ) {
+//        cairo::Context ctx( cairo::SurfacePdf( getHomeDirectory() / "CairoBasicShot.pdf", getWindowWidth(), getWindowHeight() ) );
+//        renderScene( ctx );
+//    }	
+}
+
 void ApproximateNaturalApp::update() {
+    cout << "update" << endl;
+}
+
+void ApproximateNaturalApp::renderScene() {
     int idx = 0;
     for(auto gp : positions) {
-        
-        
         // draw lines to all my neighbors
         int neighbors[4] = {
             idx % sideCount == 0 ? -1 : idx - 1, // start of row?
@@ -75,82 +94,18 @@ void ApproximateNaturalApp::update() {
         };
         for(auto neighbor : neighbors) {
             if (neighbor >= 0 && neighbor < positions.size()) {
-                
-                cout << idx << " <--> " << neighbor << endl;
-                
-                // connect
+                // connect with neighbor
                 sand.stroke(4, gp, positions[neighbor]);
-                
-                // ???
-//                const nwij = weight[nij];
-//                wt += nwij;
-//                mx += nwij * gn.x;
-//                my += nwij * gn.y;
             }
         }
-        
-        
-        
         idx++;
     }
-    
-    
-    
-    
-    
-            /*
-        positions = positions.map((gp, ij) => {
-             // get original grid position
-             const g = grid[ij];
-             // our x, y mapped into space
-             const gx = gp.x;
-             const gy = gp.y;
-             // sign for position
-             const sgn = sign[ij];
-             
-             //???
-             let mx = 0;
-             let my = 0;
-             let wt = 0;
-             
-             // draw lines to neighbors?
-             g.near.forEach((nij) => {
-               const gn = positions[nij];
-               stroke(ctx, 4, gp, gn);
-             
-               const nwij = weight[nij];
-               wt += nwij;
-               mx += nwij * gn.x;
-               my += nwij * gn.y;
-             });
-             
-             mx /= wt;
-             my /= wt;
-             
-             let dx = mx - gx;
-             let dy = my - gy;
-             const dd = Math.sqrt(dx*dx + dy*dy || 1.0);
-             dx /= dd;
-             dy /= dd;
-             
-             const a = Math.random()*TWOPI;
-             const r = Math.random()*noise;
-             
-             return {
-             x: limit(gx + sgn*dx*scale + Math.cos(a)*r,
-             boundary.xr-1, boundary.xl),
-             y: limit(gy + sgn*dy*scale + Math.sin(a)*r,
-             boundary.yb-1, boundary.yt)
-             };
-        });
-             */
 }
 
 void ApproximateNaturalApp::draw() {
-    // display current state of surface
-	gl::clear(Color(0, 0, 0));
-//    sand.display(2);
-    sand.display();
+    cairo::Context ctx(cairo::createWindowSurface());
+    renderScene();
+    sand.drawFrame(ctx);
 }
 
-CINDER_APP( ApproximateNaturalApp, RendererGl(RendererGl::Options().msaa(16)), prepareSettings )
+CINDER_APP( ApproximateNaturalApp, Renderer2d )

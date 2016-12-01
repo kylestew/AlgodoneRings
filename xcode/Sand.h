@@ -8,6 +8,7 @@
 #ifndef Sand_h
 #define Sand_h
 
+#include "cinder/cairo/Cairo.h"
 #include "cinder/Perlin.h"
 #include "cinder/Rand.h"
 
@@ -19,14 +20,16 @@ using namespace std;
 class Sand {
 public:
     Sand() {}
-    Sand(int width, int height) : width{width}, height{height}, alpha{0}, grain{1.0} {
-        surface = Surface32f(width, height, false);
+    Sand(int width, int height) : background{ColorA(1,1,1,1)}, alpha{1.0}, grain{1.0} {
+        offscreenBuffer = cairo::SurfaceImage(width, height, false);
+        offscreenContext = cairo::Context(offscreenBuffer);
+        clear();
         perlin.setSeed((int)clock());
     }
     
     void setBackground(ColorA col) { background = col; clear(); }
-    void setAlpha(float aAlpha) { alpha = aAlpha; }
-    void setGrain(float aGrain) {
+    void setAlpha(double aAlpha) { alpha = aAlpha; }
+    void setGrain(double aGrain) {
         // grain is scaled up for surface
         // ex: 4.0 = a particle can randomly move up to 4% from its original position
 //        grain = width * (aGrain/200.0);
@@ -34,9 +37,9 @@ public:
     }
     
     void drawParticles(vector<Particle> particles) {
-        for(auto &particle : particles) {
-            drawPoint(particle.position, particle.color);
-        }
+//        for(auto &particle : particles) {
+//            drawPoint(particle.position, particle.color);
+//        }
     }
     
     void connectParticles(vector<Particle> particles) {
@@ -52,61 +55,42 @@ public:
     
     void stroke(int detail, Particle p0, Particle p1) {
         vec2 del = p1.position - p0.position;
-        
         for(int i = 0; i < detail; i++) {
-//            float rnd = Rand::randFloat();
-//            drawPoint(vec2(p0.position.x + rnd*del.x, p0.position.y + rnd*del.y), p0.color);
-            
-            float rnd = (float)i/(float)detail;
+            float rnd = Rand::randFloat();
             drawPoint(vec2(p0.position.x + rnd*del.x, p0.position.y + rnd*del.y), p0.color);
         }
     }
     
-    void display(int scaleDown = 1) {
-        Rectf drawRect(0, 0, width/scaleDown, height/scaleDown);
-        gl::draw(gl::Texture2d::create(surface), drawRect);
+    void drawFrame(cairo::Context &ctx) {
+        ctx.copySurface(offscreenBuffer, offscreenBuffer.getBounds());
     }
     
 private:
+    cairo::SurfaceImage     offscreenBuffer;
+    cairo::Context          offscreenContext;
+    
     Perlin perlin;
-    int width, height;
-    Surface32f surface;
+//    int width, height;
     ColorA background;
-    float alpha;
-    float grain;
+    double alpha;
+    double grain;
     
     void clear() {
-        Area area(0, 0, surface.getWidth(), surface.getHeight());
-        Surface32f::Iter iter = surface.getIter(area);
-        while(iter.line()) {
-            while(iter.pixel()) {
-                iter.r() = background.r;
-                iter.g() = background.g;
-                iter.b() = background.b;
-                iter.a() = background.a;
-            }
-        }
-    }
-    
-    void blendOver(vec2 pos, ColorA col) {
-        ColorA c = surface.getPixel(pos);
-        
-        float invA = 1.0 - alpha;
-        c.r += alpha * (col.r + c.r*invA);
-        c.g += alpha * (col.g + c.g*invA);
-        c.b += alpha * (col.b + c.b*invA);
-        c.a = alpha + c.a*invA;
-        
-        surface.setPixel(pos, c);
+        offscreenContext.setSource(background);
+        offscreenContext.paint();
     }
     
     void drawPoint(vec2 point, ColorA color) {
         // apply grain as perlin brownian noise
         // TODO: where does grain need to be applied?
 //        point += grain * perlin.fBm(point.x*0.1f, point.y*0.1f, app::getElapsedSeconds() * 0.1f);
-        blendOver(point, color);
+        
+        offscreenContext.setSource(color);
+        offscreenContext.rectangle(point.x, point.y, 1, 1);
+        offscreenContext.fill();
     }
     
+    /*
     void drawLine(vec2 p0, vec2 p1, ColorA c0, ColorA c1) {
         double x0 = p0.x;
         double y0 = p0.y;
@@ -137,6 +121,7 @@ private:
             }
         }
     }
+     */
     
 };
 
