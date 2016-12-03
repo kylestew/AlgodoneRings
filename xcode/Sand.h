@@ -36,9 +36,15 @@ public:
     }
     
     void drawParticles(vector<Particle> particles) {
-//        for(auto &particle : particles) {
-//            drawPoint(particle.position, particle.color);
-//        }
+        for(auto &particle : particles) {
+            drawPoint(particle.position, particle.color, 1);
+        }
+    }
+    
+    void drawPoints(vector<Particle> particles, double size) {
+        for(auto &particle : particles) {
+            drawPoint(particle.position, particle.color, size);
+        }
     }
     
     void connectParticles(vector<Particle> particles) {
@@ -56,12 +62,12 @@ public:
         vec2 del = p1.position - p0.position;
         for(int i = 0; i < detail; i++) {
             float rnd = Rand::randFloat();
-            drawPoint(vec2(p0.position.x + rnd*del.x, p0.position.y + rnd*del.y), p0.color);
+            drawPoint(vec2(p0.position.x + rnd*del.x, p0.position.y + rnd*del.y), p0.color, 1);
         }
     }
     
-    void drawFrame(cairo::Context &ctx) {
-        ctx.copySurface(offscreenBuffer, offscreenBuffer.getBounds());
+    void drawFrame(cairo::Context &ctx, Rectf dest) {
+        ctx.copySurface(offscreenBuffer, offscreenBuffer.getBounds(), dest);
     }
     
 private:
@@ -78,13 +84,13 @@ private:
         offscreenContext.paint();
     }
     
-    void drawPoint(vec2 point, ColorA color) {
+    void drawPoint(vec2 point, ColorA color, double size) {
         // apply grain as perlin brownian noise
         // TODO: where does grain need to be applied?
 //        point += grain * perlin.fBm(point.x*0.1f, point.y*0.1f, app::getElapsedSeconds() * 0.1f);
         
         offscreenContext.setSource(color);
-        offscreenContext.rectangle(point.x, point.y, 1, 1);
+        offscreenContext.rectangle(point.x, point.y, size, size);
         offscreenContext.fill();
     }
     
