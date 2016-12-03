@@ -10,6 +10,9 @@ public:
     Scene(int width, int height) : width(width), height(height) {
         sand = Sand(width, height);
     }
+    
+    static constexpr const char* SCENE_NAME = "SCENE NAME";
+    
     virtual void update() {}
     virtual void renderScene(cairo::Context &ctx, int x0, int y0) {}
 protected:
