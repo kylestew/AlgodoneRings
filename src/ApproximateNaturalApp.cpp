@@ -3,8 +3,9 @@
 #include "cinder/Utilities.h"
 
 #include "Scene.h"
-#include "RandomGrids.h"
-#include "Walkers.h"
+#include "DifferentialLine.h"
+//#include "Walkers.h"
+#include "ConnectedPoints.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -15,24 +16,33 @@ class ApproximateNaturalApp : public App {
 	void setup() override;
     void keyDown(KeyEvent event) override;
 	void update() override;
+	void renderScene(cairo::Context &ctx, int width, int height);
 	void draw() override;
     
     void nextSceneSet();
     
-    ColorA background;
+    static const int BASE_PADDING = 30;
+    static const int TOP_PADDING = 90;
     
+    ColorA background;
+    ColorA foreground;
+    
+    int rows, cols;
+    vec2 cellSize;
     vector<Scene*> scenes;
+    
+    int currentFrame = 0;
 };
 
 void ApproximateNaturalApp::setup() {
-    setWindowSize(1200, 900);
-    setFullScreen(true);
+    setWindowSize(900, 900);
+//    setFullScreen(true);
     
-    background = ColorA(0.99,0.99,.94,1);
+    background = ColorA(0.99, 0.99, 0.94, 1);
+    foreground = ColorA(0.22, 0.22, 0.22, 1);
     
     nextSceneSet();
 }
-
 
 void ApproximateNaturalApp::keyDown( KeyEvent event ) {
     if( event.getCode() == KeyEvent::KEY_RETURN ) {
@@ -45,8 +55,12 @@ void ApproximateNaturalApp::keyDown( KeyEvent event ) {
         assert(false); // TODO: skip to next design
     }
     else if( event.getChar() == 's' ) {
-//        cairo::Context ctx( cairo::SurfaceSvg( getHomeDirectory() / "CairoBasicShot.svg", getWindowWidth(), getWindowHeight() ) );
-//        renderScene( ctx );
+        cairo::SurfaceCgBitmapContext surface = cairo::SurfaceCgBitmapContext(getWindowWidth(), getWindowHeight(), false);
+        cairo::Context ctx(surface);
+        renderScene(ctx, surface.getWidth(), surface.getHeight());
+        char s[28];
+        sprintf(s, "RENDER/dump/out_%08d.png", currentFrame++);
+        writeImage(getHomeDirectory() / s, surface.getSurface());
     }
 }
 
@@ -56,15 +70,28 @@ void ApproximateNaturalApp::nextSceneSet() {
     int width = getWindowWidth();
     int height = getWindowHeight();
     
-    scenes.push_back(new Scene(width, height));
+    // adjust for padding
+//    width -= BASE_PADDING*2;
+//    height -= BASE_PADDING+TOP_PADDING;
     
+//    rows = 2;
+//    cols = 3;
+//    int num = rows * cols;
+//    cellSize = vec2(floor(width/cols), floor(height/rows));
+//    for (int i = 0; i < num; ++i) {
+//        scenes.push_back(new Scene(cellSize.x, cellSize.y));
+//    }
     
     // TODO: pick variable scene and grid layout
     // TODO: pick random asset path per run if needs color asset
     
     // WALKERS
-//    scenes.push_back(new Walkers(WIDTH, HEIGHT, "gradient.png", ColorA(0,0,0,1)));
+    rows = 1;
+    cols = 1;
+//    scenes.push_back(new Walkers(width, height, "sampler01.jpg", ColorA(0.1,0.1,0.1,1)));
     
+    
+    scenes.push_back(new DifferentailLine(width, height, (int)clock(), background, foreground));
 }
 
 void ApproximateNaturalApp::update() {
@@ -73,53 +100,57 @@ void ApproximateNaturalApp::update() {
     }
 }
 
-void ApproximateNaturalApp::draw() {
-    cairo::SurfaceQuartz surface = cairo::createWindowSurface();
-    int width = surface.getWidth();
-    int height = surface.getHeight();
-    cairo::Context ctx(surface);
-    
+void ApproximateNaturalApp::renderScene(cairo::Context &ctx, int width, int height) {
     // background color
     ctx.setSource(background);
     ctx.paint();
     
     // draw border
-    int padding = 30;
-    ctx.setSourceRgb(0.2, 0.2, 0.2);
-    ctx.rectangle(padding, padding, width-(padding*2), height-(padding*2));
-    ctx.setLineWidth(3);
-    ctx.stroke();
-    
-    padding += 4;
-    ctx.rectangle(padding, padding, width-(padding*2), height-(padding*2));
-    ctx.setLineWidth(1);
-    ctx.stroke();
-    
-    // scene title
-    ctx.setFontFace(cairo::FontFace("MuseoSans"));
-    ctx.setFontSize(13);
-    
-    ctx.moveTo(100, 100);
-    ctx.setSourceRgb(0.2, 0.2, 0.2);
-    ctx.showText("Hello World");
-//    cairo_show_text(cr, "Most relationships seem so transitory");
-//    cairo_move_to(cr, 20, 60);
-//    cairo_show_text(cr, "They're all good but not the permanent one");
-    
-//    cairo_move_to(cr, 20, 120);
-//    cairo_show_text(cr, "Who doesn't long for someone to hold");
+    int padding = 0;
+//    int padding = BASE_PADDING;
+//    ctx.setSource(foreground);
+//    ctx.rectangle(padding, padding, width-(padding*2), height-(padding*2));
+//    ctx.setLineWidth(3);
+//    ctx.stroke();
 //    
-//    cairo_move_to(cr, 20, 150);
-//    cairo_show_text(cr, "Who knows how to love you without being told");
-//    cairo_move_to(cr, 20, 180);
-//    cairo_show_text(cr, "Somebody tell me why I'm on my own");
-//    cairo_move_to(cr, 20, 210);
-//    cairo_show_text(cr, "If there's a soulmate for everyone");
+//    padding += 4;
+//    ctx.rectangle(padding, padding, width-(padding*2), height-(padding*2));
+//    ctx.setLineWidth(1);
+//    ctx.stroke();
+//    
+//    // scene title
+//    ctx.setFontFace(cairo::FontFace("Museo Sans"));
+//    ctx.setFontSize(38);
+//    // have to manually center text by measuring and offsetting it
+//    int x = width/2.0;
+//    int y = padding + 18.0;
+//    const char* utf8 = scenes[0]->sceneName;
+//    cairo::TextExtents extents = ctx.textExtents(utf8);
+//    x -= (extents.width()/2 + extents.xBearing());
+//    y += extents.height();
+//    ctx.moveTo(x, y);
+//    ctx.showText(utf8);
     
     // now draw grid of scenes
-//    for(auto &scene : scenes) {
-//        scene->renderScene(ctx, 0, 0);
-//    }
+    int xOff = padding;
+    int yOff = TOP_PADDING;
+    yOff = 0; // TEMP
+    int idx = 0;
+    for(auto &scene : scenes) {
+        scene->renderScene(ctx, xOff, yOff);
+        xOff += cellSize.x;
+        if (++idx % cols == 0) {
+            xOff = padding;
+            yOff += 660 * 2;
+        }
+        cout << yOff << endl;
+    }
+}
+
+void ApproximateNaturalApp::draw() {
+    cairo::SurfaceQuartz surface = cairo::createWindowSurface();
+    cairo::Context ctx(surface);
+    renderScene(ctx, surface.getWidth(), surface.getHeight());
 }
 
 CINDER_APP( ApproximateNaturalApp, Renderer2d )

@@ -16,8 +16,7 @@ public:
     
     void update() {
         if (maxVelocity > 0)
-            assert(false); // not clamping
-            velocity = clamp(velocity, vec2(0, 0), vec2(maxVelocity, maxVelocity));
+            velocity = clamp(velocity, vec2(-maxVelocity, -maxVelocity), vec2(maxVelocity, maxVelocity));
         position += velocity;
     }
 private:

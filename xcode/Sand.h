@@ -35,6 +35,11 @@ public:
         grain = aGrain;
     }
     
+    void clear() {
+        offscreenContext.setSource(background);
+        offscreenContext.paint();
+    }
+    
     void drawParticles(vector<Particle> particles) {
         for(auto &particle : particles) {
             drawPoint(particle.position, particle.color, 1);
@@ -66,6 +71,22 @@ public:
         }
     }
     
+    void drawEdges(vector<Particle> points, double lineWidth, ColorA color) {
+        if (points.size() == 0)
+            return;
+        
+        vec2 p0 = points[0].position;
+        offscreenContext.moveTo(p0);
+        for(int i = 1; i < points.size(); ++i) {
+            offscreenContext.lineTo(points[i].position);
+        }
+        offscreenContext.closePath();
+        
+        offscreenContext.setLineWidth(lineWidth);
+        offscreenContext.setSource(color);
+        offscreenContext.stroke();
+    }
+    
     void drawFrame(cairo::Context &ctx, Rectf dest) {
         ctx.copySurface(offscreenBuffer, offscreenBuffer.getBounds(), dest);
     }
@@ -78,11 +99,6 @@ private:
 //    int width, height;
     ColorA background;
     double grain;
-    
-    void clear() {
-        offscreenContext.setSource(background);
-        offscreenContext.paint();
-    }
     
     void drawPoint(vec2 point, ColorA color, double size) {
         // apply grain as perlin brownian noise

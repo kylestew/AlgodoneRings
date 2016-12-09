@@ -36,7 +36,7 @@
 		00B995591B128DF400A5C623 /* IOSurface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOSurface.framework; path = System/Library/Frameworks/IOSurface.framework; sourceTree = SDKROOT; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		191F36055E04489C86A66577 /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
-		27333E3F1DF0ED1D005A9E4C /* RandomGrids.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RandomGrids.h; sourceTree = "<group>"; };
+		27333E3F1DF0ED1D005A9E4C /* ConnectedPoints.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConnectedPoints.h; sourceTree = "<group>"; };
 		27333E401DF0EE30005A9E4C /* Scene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
 		275372FE1DEFC14D008C0AA3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		275373001DEFC43E008C0AA3 /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
@@ -45,6 +45,9 @@
 		276AC0721DF1EE9300A230B6 /* Walkers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Walkers.h; sourceTree = "<group>"; };
 		276AC0731DF1EFA100A230B6 /* ImageColorSampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageColorSampler.h; sourceTree = "<group>"; };
 		276AC0741DF1F06400A230B6 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../assets; sourceTree = "<group>"; };
+		27EE1B541DF375040019FFD5 /* Splines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Splines.h; sourceTree = "<group>"; };
+		27EE1B551DF388660019FFD5 /* DifferentialLine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DifferentialLine.h; sourceTree = "<group>"; };
+		27F933521DF392CF009BBD5A /* Differential.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Differential.h; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		326D796F65CE476D9D685A90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -91,6 +94,7 @@
 		080E96DDFE201D6D7F000001 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				27F933511DF392C4009BBD5A /* Things */,
 				27333E3E1DF0ED0F005A9E4C /* Scenes */,
 				94E829D845A843D4B7194C05 /* ApproximateNaturalApp.cpp */,
 				275373021DEFC54F008C0AA3 /* Sand.h */,
@@ -139,11 +143,21 @@
 		27333E3E1DF0ED0F005A9E4C /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
-				27333E3F1DF0ED1D005A9E4C /* RandomGrids.h */,
+				27333E3F1DF0ED1D005A9E4C /* ConnectedPoints.h */,
 				27333E401DF0EE30005A9E4C /* Scene.h */,
 				276AC0721DF1EE9300A230B6 /* Walkers.h */,
+				27EE1B541DF375040019FFD5 /* Splines.h */,
+				27EE1B551DF388660019FFD5 /* DifferentialLine.h */,
 			);
 			name = Scenes;
+			sourceTree = "<group>";
+		};
+		27F933511DF392C4009BBD5A /* Things */ = {
+			isa = PBXGroup;
+			children = (
+				27F933521DF392CF009BBD5A /* Differential.h */,
+			);
+			name = Things;
 			sourceTree = "<group>";
 		};
 		29B97314FDCFA39411CA2CEA /* ApproximateNatural */ = {
