@@ -7,22 +7,23 @@ from random import randint
 import math
 
 # scenes
-# from hyphae import Hyphae
-# from differentialLine import DifferentialLineScene
 from sandSplineScene import SandSplineScene
+from sandSplineScene import SandSplineParamGenerator
 
 
-DEV_MODE = True
+DEV_MODE = False
 
-SCREEN_SIZE = [640, 480]
-FPS = 8
+SCREEN_SIZE = [1600, 1200]
+FPS = 30
 
-MAX_COLUMNS = 6
-DISPLAY_SECONDS = 60
+MIN_COLUMNS = 2
+MAX_COLUMNS = 4
+DISPLAY_SECONDS = 120
 
-FILL_BACK = 255,255,255
-BACK = 1,1,1,1
-FRONT = 0,0,0,0.01
+FILL_BACK = 28,77,95 # from inconvergent - love the color scheme
+# BACK = 28/255,77/255,95/255,1
+BACK = 1,77/255,95/255,1
+FRONT = 1,1,1,1
 
 sceneGrid = []
 scenes = []
@@ -37,54 +38,72 @@ def bgra_surf_to_rgba_string(cairo_surface):
     return img.tobytes('raw', 'RGBA', 0, 1)
 
 def prepareScene(size):
-    padding = round(size[0] * 0.02)
+    # padding is 4% of width
+    padding = round(size[0] * 0.04)
 
     # choose random column count
-    cols = randint(1, MAX_COLUMNS)
+    cols = randint(1, 4)
+    rows = randint(1, 2)
+    if cols == 1: # don't stack on widescreen
+        rows = 1
 
     # TEMP: TESTING
     if DEV_MODE:
-        cols = 1
+        rows = 2
+        cols = 3
 
-    # cell size is always square
+    # determine horizontally constrained cell size
     nonPadWidth = size[0] - (padding * cols + padding)
-    n = round(nonPadWidth/cols)
-    # if cell size greater than heigh, we need to bound by height
-    if n > size[1]:
-        n = size[1] - padding*2 # assuming single cell
+    nW = round(nonPadWidth/cols)
+    # determine vertically constrained cell size
+    nonPadHeight = size[1] - (padding * rows + padding)
+    nH = round(nonPadHeight/rows)
+    # choose the smallest cell size
+    n = nW if nW < nH else nH
 
-    # determine row count that will fill vertically
-    rows = math.floor((size[1]-padding)/(n+padding)) # height - 1 slice of padding / padded rows
-
-    # reconfigure the padding so everything is centered
-    xPadding = round((size[0] - n*cols)/(cols+1))
-    yPadding = round((size[1] - n*rows)/(rows+1))
+    # determine gridwork insets that will center the grid
+    xInset = (size[0] - ((n+padding)*cols - padding)) / 2.0
+    yInset = (size[1] - ((n+padding)*rows - padding)) / 2.0
 
     # create grid positions (top lefts)
     global sceneGrid
     sceneGrid = []
     xPos = 0
-    yPos = yPadding
+    yPos = yInset
     for y in range(rows):
-        xPos = xPadding
+        xPos = xInset
         for x in range(cols):
             sceneGrid.append((xPos, yPos))
-            xPos += n + xPadding
-        yPos += n + yPadding
+            xPos += n + padding
+        yPos += (n + padding)
 
+    # use a parameter generator to created isolated random permutations of parameters
+    # only one value will differ randomly
+    # paramGenerator = SandSplineParamGenerator()
+    params = {
+        'numSplines': 3,
+        'sectionCount': 15,
+        'noiseScale': 0.000003,
+        'density': 1000,
+        'ordered': True,
+        'alpha': 0.05,
+        'radiusOffsetBase': 0.5,
+        'radiusOffsetDiverge': 0
+    }
 
-    # TODO: better random values for scenes
-    # make scenes
     global scenes
     scenes = []
     for i in range(rows*cols):
-        scenes.append(SandSplineScene(n, FRONT, BACK))
+        # scenes.append(SandSplineScene(n, FRONT, BACK, paramGenerator.generate()))
+        scenes.append(SandSplineScene(n, FRONT, BACK, params))
 
 def main():
     clock = pygame.time.Clock()
     pygame.init()
-    screen = pygame.display.set_mode(SCREEN_SIZE);
-    # screen = pygame.display.set_mode([0,0], pygame.FULLSCREEN);
+    if DEV_MODE:
+        screen = pygame.display.set_mode(SCREEN_SIZE)
+    else:
+        screen = pygame.display.set_mode([0,0], pygame.FULLSCREEN)
     lastSceneStartTime = -10000000 # cause the scene to rebuild on first frame
 
     done = 0
@@ -113,9 +132,15 @@ def main():
             if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                 done = 1
                 break
-            # elif e.type == MOUSEBUTTONDOWN and e.button == 1:
-            #     WINCENTER[:] = list(e.pos)
-            # TODO: dump to PNG command
+
+            # enter - reset scene
+            elif e.type == KEYDOWN and e.key == K_RETURN:
+                lastSceneStartTime = -10000000
+
+            # space to screen cap
+            elif e.type == KEYDOWN and e.key == K_SPACE:
+                pygame.image.save(screen, "captures/screenshot.tif")
+
         clock.tick(FPS) # argument is FPS setting
     pygame.quit()
 

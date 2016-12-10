@@ -1,5 +1,6 @@
 import cairocffi as cairo
 
+from random import randint
 from numpy.random import random
 from numpy import pi
 from numpy import sqrt
@@ -35,6 +36,48 @@ class Render(object):
     def clear_canvas(self):
         self.ctx.set_source_rgba(*self.back)
         self.ctx.paint()
+
+    def write_to_png(self, fn):
+        self.surface.write_to_png(fn)
+
+    def set_front_from_colors_randomly(self, a=1):
+        # pick random index [0-ncolors)
+        idx = randint(0, self.ncolors-1)
+        self.set_front_from_colors(idx, a)
+
+    def set_front_from_colors(self, i, a=1):
+        ii = i%self.ncolors
+
+        r,g,b = self.colors[ii]
+
+        # print(str(r) + "," + str(g) + "," + str(b))
+
+        c = [r,g,b,a]
+
+        self.front = c
+        self.ctx.set_source_rgba(*c)
+
+    def get_colors_from_file(self, fn):
+        from PIL import Image
+        from numpy.random import shuffle
+
+        def p(f):
+            return float('{:0.5f}'.format(f))
+
+        scale = 1./255.
+        im = Image.open(fn)
+        w, h = im.size
+        rgbim = im.convert('RGB')
+        res = []
+        for i in range(0, w):
+          for j in range(0, h):
+            r, g, b = rgbim.getpixel((i, j))
+            res.append([p(r*scale), p(g*scale), p(b*scale)])
+
+        shuffle(res)
+
+        self.colors = res
+        self.ncolors = len(res)
 
     def set_front(self, c):
         self.front = c
