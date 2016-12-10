@@ -4,16 +4,18 @@ from random import random, randint
 
 
 class SandSplineParamGenerator():
-    def __init__(self):
+    def __init__(self, count):
 
         numSplines = randint(1, 16)
         sectionCount = randint(8, 32)
-        noiseScale = randint(20, 40)/1000000.0
+        noiseScale = randint(20, 30)/2000000.0
+        if count > 2:
+            noiseScale *= count * 0.75
         noiseDetail = randint(10, 2000)
         density = randint(500, 1500)
         radius = random()/2.0+0.5
-        decayRadius = True if random() < 0.4 else False
-        radiusDecay = random() * 0.03
+        decayRadius = True if random() < 0.6 else False
+        radiusDecay = random() * 0.05
 
         self.params = {
             'numSplines': numSplines,

@@ -12,12 +12,12 @@ from sandSplineScene import SandSplineScene
 from sandSplineScene import SandSplineParamGenerator
 
 
-DEV_MODE = True
+DEV_MODE = False
 
-SCREEN_SIZE = [1600, 1200]
+SCREEN_SIZE = [1200, 1200]
 FPS = 30
 
-DISPLAY_SECONDS = 3*60
+DISPLAY_SECONDS = 120
 
 FILL_BACK = 28,77,95 # from inconvergent - love the color scheme
 BACK = 28/255,77/255,95/255,1
@@ -78,11 +78,12 @@ def prepareScene(size):
 
     # use a parameter generator to created isolated random permutations of parameters
     # only one value will differ randomly
-    paramGenerator = SandSplineParamGenerator()
+    count = rows*cols
+    paramGenerator = SandSplineParamGenerator(count)
 
     global scenes
     scenes = []
-    for i in range(rows*cols):
+    for i in range(count):
         scenes.append(SandSplineScene(n, FRONT, BACK, paramGenerator.generate()))
 
 def saveScreen(screen):
