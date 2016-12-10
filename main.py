@@ -5,6 +5,7 @@ import cairocffi as cairo
 from PIL import Image
 from random import randint
 import math
+import datetime
 
 # scenes
 from sandSplineScene import SandSplineScene
@@ -139,7 +140,9 @@ def main():
 
             # space to screen cap
             elif e.type == KEYDOWN and e.key == K_SPACE:
-                pygame.image.save(screen, "captures/screenshot.tif")
+                dt = datetime.datetime.now()
+                dt = dt.replace(microsecond=0)
+                pygame.image.save(screen, "captures/screenshot" + dt + ".tif")
 
         clock.tick(FPS) # argument is FPS setting
     pygame.quit()
