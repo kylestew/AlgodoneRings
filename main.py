@@ -12,18 +12,15 @@ from sandSplineScene import SandSplineScene
 from sandSplineScene import SandSplineParamGenerator
 
 
-DEV_MODE = False
+DEV_MODE = True
 
 SCREEN_SIZE = [1600, 1200]
 FPS = 30
 
-MIN_COLUMNS = 2
-MAX_COLUMNS = 4
-DISPLAY_SECONDS = 120
+DISPLAY_SECONDS = 3*60
 
 FILL_BACK = 28,77,95 # from inconvergent - love the color scheme
-# BACK = 28/255,77/255,95/255,1
-BACK = 1,77/255,95/255,1
+BACK = 28/255,77/255,95/255,1
 FRONT = 1,1,1,1
 
 sceneGrid = []
@@ -43,15 +40,15 @@ def prepareScene(size):
     padding = round(size[0] * 0.04)
 
     # choose random column count
-    cols = randint(1, 4)
+    cols = randint(1, 3)
     rows = randint(1, 2)
     if cols == 1: # don't stack on widescreen
         rows = 1
 
     # TEMP: TESTING
-    if DEV_MODE:
-        rows = 2
-        cols = 3
+    # if DEV_MODE:
+    #     cols = 1
+    #     rows = 1
 
     # determine horizontally constrained cell size
     nonPadWidth = size[0] - (padding * cols + padding)
@@ -78,25 +75,20 @@ def prepareScene(size):
             xPos += n + padding
         yPos += (n + padding)
 
+
     # use a parameter generator to created isolated random permutations of parameters
     # only one value will differ randomly
-    # paramGenerator = SandSplineParamGenerator()
-    params = {
-        'numSplines': 3,
-        'sectionCount': 15,
-        'noiseScale': 0.000003,
-        'density': 1000,
-        'ordered': True,
-        'alpha': 0.05,
-        'radiusOffsetBase': 0.5,
-        'radiusOffsetDiverge': 0
-    }
+    paramGenerator = SandSplineParamGenerator()
 
     global scenes
     scenes = []
     for i in range(rows*cols):
-        # scenes.append(SandSplineScene(n, FRONT, BACK, paramGenerator.generate()))
-        scenes.append(SandSplineScene(n, FRONT, BACK, params))
+        scenes.append(SandSplineScene(n, FRONT, BACK, paramGenerator.generate()))
+
+def saveScreen(screen):
+    tf = '%Y%m%d{:s}%H%M%S{:s}%f'.format('-', '-')
+    t = datetime.now().strftime(tf)
+    pygame.image.save(screen, "captures/screenshot_" + str(t) + ".tif")
 
 def main():
     clock = pygame.time.Clock()
@@ -136,15 +128,16 @@ def main():
 
             # enter - reset scene
             elif e.type == KEYDOWN and e.key == K_RETURN:
+                saveScreen(screen) # capture current
                 lastSceneStartTime = -10000000
 
             # space to screen cap
             elif e.type == KEYDOWN and e.key == K_SPACE:
-                tf = '%Y%m%d{:s}%H%M%S{:s}%f'.format('-', '-')
-                t = datetime.now().strftime(tf)
-                pygame.image.save(screen, "captures/screenshot_" + str(t) + ".tif")
+                saveScreen(screen)
 
         clock.tick(FPS) # argument is FPS setting
+        # print("fps:", clock.get_fps())
+
     pygame.quit()
 
 

@@ -3,29 +3,32 @@ from modules.sandSpline import SandSpline
 from random import random, randint
 
 
-
-# TODO: SOLOS
-
-
 class SandSplineParamGenerator():
     def __init__(self):
-        density = randint(300, 900)
-        alpha = randint(1, 100)/density + 0.01
-        self.params = {
-            'numSplines': randint(3, 12),
-            'sectionCount': randint(15, 100),
-            'noiseScale': randint(1, 10)/12000.0,
-            'density': density,
-            'ordered': True if random() < 0.5 else False,
-            'alpha': alpha,
-            'radiusOffsetBase': (random()/2.0)+0.5, # 0.5-1.0
-            'radiusOffsetDiverge': (random()/2.0), # small random divergence of radius
-        }
-        self.params['radiusOffsetDiverge'] = 0
 
+        numSplines = randint(1, 16)
+        sectionCount = randint(8, 32)
+        noiseScale = randint(20, 40)/1000000.0
+        noiseDetail = randint(10, 2000)
+        density = randint(500, 1500)
+        radius = random()/2.0+0.5
+        decayRadius = True if random() < 0.4 else False
+        radiusDecay = random() * 0.03
+
+        self.params = {
+            'numSplines': numSplines,
+            'sectionCount': sectionCount,
+            'noiseScale': noiseScale,
+            'noiseDetail': noiseDetail,
+            'density': density,
+            'radius': radius,
+            'decayRadius': decayRadius,
+            'radiusDecay': radiusDecay,
+        }
 
     def generate(self):
         return self.params
+
 
 
 class SandSplineScene(Render):
@@ -33,18 +36,30 @@ class SandSplineScene(Render):
         Render.__init__(self, n, front, back)
 
         # scale down canvas so random drift doesn't get clipped
-        self.scale(0.75)
-
-        print(params)
+        self.scale(0.6)
 
         numSplines = params['numSplines']
         sectionCount = params['sectionCount']
         noiseScale = params['noiseScale']
+        noiseDetail = params['noiseDetail']
         density = params['density']
-        ordered = params['ordered']
-        self.alpha = params['alpha']
-        radiusOffset = params['radiusOffsetBase']
-        radiusOffsetDiverge = params['radiusOffsetDiverge']
+        radius = params['radius']
+        decayRadius = params['decayRadius']
+        radiusDecay = params['radiusDecay']
+
+        # computed
+        self.alpha = n * 0.00006 * (1.0+random()*0.1)
+        if self.alpha < 0.05:
+            self.alpha = 0.08
+
+        print('===========')
+        print("spline count: " + str(numSplines))
+        print("section count: " + str(sectionCount))
+        print("noise: " + str(noiseScale))
+        print("detail: " + str(noiseDetail))
+        print("alpha: " + str(self.alpha))
+        print("radiusDecay: " + str(radiusDecay))
+
 
         # load up sampler
         self.sampler = self.get_colors_from_file('img/check.png')
@@ -52,8 +67,9 @@ class SandSplineScene(Render):
         # create splines
         self.splines = []
         for i in range(numSplines):
-            radius = radiusOffset + (random()-0.5) * radiusOffsetDiverge
-            self.splines.append(SandSpline(sectionCount, radius, noiseScale, density, ordered))
+            self.splines.append(SandSpline(sectionCount, radius, noiseScale, noiseDetail, density))
+            if decayRadius:
+                radius -= radiusDecay
 
     def step(self):
         for spline in self.splines:
