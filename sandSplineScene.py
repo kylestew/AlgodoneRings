@@ -8,11 +8,12 @@ class SandSplineParamGenerator():
 
         numSplines = randint(1, 16)
         sectionCount = randint(8, 32)
-        noiseScale = randint(20, 30)/2000000.0
+        # noiseScale = randint(20, 30)/2000000.0
+        noiseScale = randint(28, 34)/2000000.0
         if count > 2:
             noiseScale *= count * 0.75
         noiseDetail = randint(10, 2000)
-        density = randint(500, 1500)
+        density = randint(400, 1200)
         radius = random()/2.0+0.5
         decayRadius = True if random() < 0.6 else False
         radiusDecay = random() * 0.05
@@ -50,9 +51,12 @@ class SandSplineScene(Render):
         radiusDecay = params['radiusDecay']
 
         # computed
-        self.alpha = n * 0.00006 * (1.0+random()*0.1)
-        if self.alpha < 0.05:
-            self.alpha = 0.08
+        self.alpha = n * 0.000005 * (1.0+random()*0.1)
+        # self.alpha = n * 0.00003 * (1.0+random()*0.1)
+        # if self.alpha < 0.05:
+            # self.alpha = 0.08
+        # if self.alpha < 0.03:
+        self.alpha = 0.055
 
         print('===========')
         print("spline count: " + str(numSplines))
