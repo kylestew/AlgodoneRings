@@ -24,7 +24,7 @@ class Render(object):
         self.set_front(front)
 
     def __init_cairo(self):
-        self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.n, self.n)
+        self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(self.n), int(self.n))
         self.ctx = cairo.Context(self.surface)
 
         # special drawing surface (0-1) with 0.5,0.5 centered

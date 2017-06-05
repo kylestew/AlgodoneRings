@@ -4,10 +4,17 @@ This algorithm is inspired by the Algodones dune field in Southern California. I
 
 Materials: Electrons, Python, any computer that can run Python, code heavily influenced by Inconvergent
 
-
 ## Requirements
+Python 3.5
 
-Numpi/Scipy
-Image
-# pip3 install pillow
-noise
+http://brysonpayne.com/2015/01/10/setting-up-pygame-on-a-mac/
+    - pygame (hard to install on OS X for Python 3)
+    - numpi/scipy
+    - cairocffi
+    - image
+    - pillow
+    - noise
+
+## Running
+
+    $ python main.py

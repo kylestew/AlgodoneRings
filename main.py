@@ -117,7 +117,7 @@ def main():
         for i, xy in enumerate(sceneGrid):
             scene = scenes[i]
             data_string = bgra_surf_to_rgba_string(scene.surface)
-            pygame_surface = pygame.image.frombuffer(data_string, (scene.n, scene.n), 'RGBA')
+            pygame_surface = pygame.image.frombuffer(data_string, (int(scene.n), int(scene.n)), 'RGBA')
             screen.blit(pygame_surface, xy)
 
         pygame.display.update()
