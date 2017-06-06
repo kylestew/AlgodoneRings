@@ -128,7 +128,7 @@ def main():
                 break
 
             # enter - reset scene
-            elif e.type == KEYDOWN and e.key == K_RETURN:
+            elif (e.type == KEYDOWN and e.key == K_RETURN):
                 saveScreen(screen) # capture current
                 lastSceneStartTime = -10000000
 

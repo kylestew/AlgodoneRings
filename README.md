@@ -8,12 +8,12 @@ Materials: Electrons, Python, any computer that can run Python, code heavily inf
 Python 3.5
 
 http://brysonpayne.com/2015/01/10/setting-up-pygame-on-a-mac/
-    - pygame (hard to install on OS X for Python 3)
-    - numpi/scipy
-    - cairocffi
-    - image
-    - pillow
-    - noise
+    + pygame (hard to install on OS X for Python 3)
+    + numpi/scipy
+    + cairocffi
+    + image
+    + pillow
+    + noise
 
 ## Running
 
